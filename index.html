@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+
+<title>Exercise Rutine Creator</title>
+
+<head>
+  <style type="text/css">
+    body {
+      margin: 0;
+    }
+
+    * {
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    table {
+      width: 100%;
+    }
+
+    td {
+      padding-bottom: 1rem;
+    }
+
+    h1 {
+      background-color: #333333;
+      color: white;
+      padding: 1rem;
+      margin: 0;
+    }
+
+    p {
+      padding: 1rem;
+    }
+
+    button {
+      background-color: white;
+      border-color: black;
+      color: black;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+      border-radius: 10%;
+    }
+
+    button:hover {
+      background-color: #333333;
+      color: white;
+    }
+
+    .number-range {
+      width: 90%;
+    }
+
+    /*Codigo del los checkboxes*/
+    .b {
+      background-color: #5555ff;
+    }
+
+    .d {
+      background-color: #bbbbbb;
+    }
+
+    .custom-checkbox {
+      width: 2rem;
+      height: 2rem;
+      margin-left: 2rem;
+      cursor: pointer;
+      user-select: none;
+    }
+  </style>
+</head>
+
+<body id="body">
+  <h1>Exercise Rutine Creator</h1>
+  <p>
+    In this application you will be able to create an infinite amount of
+    exercise rutine combinations, so that you will not get bored of doing the
+    right thing for your body.
+  </p>
+  <hr>
+  <h3>Maximum Number of Exercises</h3>
+  <form>
+    <input class="number-range" id="number-range" type="range" min="1" max="25" value="7" step=1 onchange="fetchRangeValue()">
+    <p id="range-label">7</p>
+  </form>
+  <br>
+  <table>
+    <tbody>
+      <!-- 0-fullbody; 1-arms; 2-legs; 3-abs; 4-alternative -->
+      <tr>
+        <td>Full Body</td>
+        <td><button onclick="showRutine(0);"></button></td>
+      </tr>
+      <tr>
+        <td>Arms</td>
+        <td><button onclick="showRutine(1);"></button></td>
+      </tr>
+      <tr>
+        <td>Legs</td>
+        <td><button onclick="showRutine(2);"></button></td>
+      </tr>
+      <tr>
+        <td>Abs</td>
+        <td><button onclick="showRutine(3);"></button></td>
+      </tr>
+      <tr>
+        <td>Alternative</td>
+        <td><button onclick="showRutine(4);"></button></td>
+      </tr>
+    </tbody>
+  </table>
+  <hr><br>
+  <div id="zona-de-agregacion"></div>
+  <br><br>
+
+
+  <script type="text/javascript">
+    function createExercise(name, q, type){
+      let obj = {};
+      obj.name = name;
+      obj.q = q;
+      obj.type = type;
+      return obj;
+    }
+    //0-fullbody; 1-arms; 2-legs; 3-abs; 4-alternative
+    var listOfMinimalExercises = [createExercise("Normal push-ups","10",1),createExercise("Sumo squat","10",2),
+    createExercise("Standard crunches","10",3),createExercise("Bicep curls","7",1),createExercise("pull ups - hands facing out","2",1),
+    createExercise("pull ups - hands facing in","2",1),createExercise("Standard planck","20 s",3),
+    createExercise("side-planck - per side","7 s/side",3),createExercise("Standard squat","10",2),
+    createExercise("High planck","20 s",3),createExercise("High knees","20 s",2),createExercise("Burpees","10",0),
+    createExercise("Renegade rows","2",0),createExercise("Dumbbell thrusters","5",0),createExercise("reverse planck","15 s",3),
+    createExercise("Standard lunges - per side","10",2),createExercise("Standard bridge","10",2),createExercise("two legged Calf raises","15",2),
+    createExercise("one legged Calf raises - per side","7",2),createExercise("Arms to side with dumbbell","7",1),
+    createExercise("Arms to front with dumbbell","7",1),createExercise("Dumbbel pulls from hip to ribs","7",1),
+    createExercise("Leg raises", "10", 3),createExercise("Kegels","20 s",4)
+    ];
+
+    function fetchRangeValue() {
+      var value = document.getElementById("number-range").value;
+      document.getElementById("range-label").textContent = value;
+    }
+
+    function toggleColor(id) {
+      let elem = document.getElementById(id);
+      document.getElementById(id).classList.toggle("d");
+    }
+
+    function swap(arr, i, j) {
+      let k = arr[i];
+      arr[i] = arr[j];
+      arr[j] = k;
+    }
+
+    function shuffleArray(arr, size) {
+      let pos;
+      let i = 0;
+      for (i; i < size - 1; i++) {
+        pos = Math.floor(Math.random() * (size - i - 1)) + i + 1;
+        swap(arr, i, pos);
+      }
+    }
+
+    //inicio ----------------
+    function createRutine(rutineType) {
+      let size = listOfMinimalExercises.length;
+      if (rutineType == 0) {
+        let newArr = [];
+        for (i = 0; i < size; i++) {
+          newArr.push(i);
+        }
+        shuffleArray(newArr, size);
+        shuffleArray(newArr, size);
+        let finalArr = [];
+        for (i = 0; i < document.getElementById("number-range").value && i < size; i++) {
+          finalArr.push(listOfMinimalExercises[newArr[i]]);
+        }
+        return finalArr;
+      } else if (rutineType == 1) {
+        let armExe = [];
+        for (i = 0; i < size; i++) {
+          if (listOfMinimalExercises[i].type == 1) {
+            armExe.push(listOfMinimalExercises[i]);
+          }
+        }
+        let indexArr = [];
+        for (i = 0; i < armExe.length; i++) {
+          indexArr.push(i);
+        }
+        shuffleArray(indexArr, armExe.length);
+        shuffleArray(indexArr, armExe.length);
+        let finalArr = [];
+        for (i = 0; i < document.getElementById("number-range").value && i < armExe.length; i++) {
+          finalArr.push(armExe[indexArr[i]]);
+        }
+        return finalArr;
+      } else if (rutineType == 2) {
+        let legExe = [];
+        for (i = 0; i < size; i++) {
+          if (listOfMinimalExercises[i].type == 2) {
+            legExe.push(listOfMinimalExercises[i]);
+          }
+        }
+        let indexArr = [];
+        for (i = 0; i < legExe.length; i++) {
+          indexArr.push(i);
+        }
+        shuffleArray(indexArr, legExe.length);
+        shuffleArray(indexArr, legExe.length);
+        let finalArr = [];
+        for (i = 0; i < document.getElementById("number-range").value && i < legExe.length; i++) {
+          finalArr.push(legExe[indexArr[i]]);
+        }
+        return finalArr;
+      } else if (rutineType == 3) {
+        let absExe = [];
+        for (i = 0; i < size; i++) {
+          if (listOfMinimalExercises[i].type == 3) {
+            absExe.push(listOfMinimalExercises[i]);
+          }
+        }
+        let indexArr = [];
+        for (i = 0; i < absExe.length; i++) {
+          indexArr.push(i);
+        }
+        shuffleArray(indexArr, absExe.length);
+        shuffleArray(indexArr, absExe.length);
+        let finalArr = [];
+        for (i = 0; i < document.getElementById("number-range").value && i < absExe.length; i++) {
+          finalArr.push(absExe[indexArr[i]]);
+        }
+        return finalArr;
+      } else if (rutineType == 4) {
+        let altExe = [];
+        for (i = 0; i < size; i++) {
+          if (listOfMinimalExercises[i].type == 4) {
+            altExe.push(listOfMinimalExercises[i]);
+          }
+        }
+        let indexArr = [];
+        for (i = 0; i < altExe.length; i++) {
+          indexArr.push(i);
+        }
+        shuffleArray(indexArr, altExe.length);
+        shuffleArray(indexArr, altExe.length);
+        let finalArr = [];
+        for (i = 0; i < document.getElementById("number-range").value && i < altExe.length; i++) {
+          finalArr.push(altExe[indexArr[i]]);
+        }
+        return finalArr;
+      }
+    }
+    //fin ----------------
+
+
+    function showRutine(rutineType) {
+      let list = createRutine(rutineType);
+      let zona = document.getElementById("zona-de-agregacion");
+      let str = '<table><tbody>';
+      for (i = 0; i < list.length; i++) {
+        str += '<tr><td style = "width: 30%;">';
+        str += list[i].name;
+        str += '</td><td style = "width: 30%;">';
+        str += list[i].q;
+        str += '</td><td style = "width: 30%;">';
+        str = str + '<div class="custom-checkbox b d" id="cc' + i + '" onclick="toggleColor(' + "'cc" + i + "');" + '"></div>';
+        str += '</td></tr>';
+      }
+      str += '</tbody></table>';
+      zona.innerHTML = str;
+      zona.firstElementChild.style.textAlign = "center";
+    }
+  </script>
+</body>
+
+</html>
