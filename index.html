@@ -113,11 +113,65 @@
     </tbody>
   </table>
   <hr><br>
+  <table>
+    <tbody>
+      <tr>
+        <td><div class="custom-checkbox b d" id="ccc" onclick="toggleColor('ccc')"></div></td>
+        <td>Clean</td>
+      </tr>
+      <tr>
+        <td><div class="custom-checkbox b d" id="rcc" onclick="toggleColor('rcc')"></div></td>
+        <td>Do not Replace</td>
+      </tr>
+    </tbody>
+  </table>
+  <br>
+  <hr><br>
   <div id="zona-de-agregacion"></div>
   <br><br>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+ <!-- The core Firebase JS SDK is always required and must be listed first -->
+ <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
+
+ <!-- Add SDKs for Firebase products that you want to use-->
+ <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-analytics.js"></script>
+
+ <!-- agrega la funcionalidad de base de datos, sin esto no funciona -->
+ <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-database.js"></script>
+
+<script type="text/javascript">
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var firebaseConfig = {
+      apiKey: "AIzaSyDhFd1KCdZz6E3m9WfIAKRMdDL1qAUS50s",
+      authDomain: "exercisedatabase-88d4b.firebaseapp.com",
+      databaseURL: "https://exercisedatabase-88d4b-default-rtdb.firebaseio.com",
+      projectId: "exercisedatabase-88d4b",
+      storageBucket: "exercisedatabase-88d4b.appspot.com",
+      messagingSenderId: "405235097507",
+      appId: "1:405235097507:web:1e6bec325950c749be4416",
+      measurementId: "G-QT2XS7712X"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
+
   <script type="text/javascript">
+
     function createExercise(name, q, type){
       let obj = {};
       obj.name = name;
@@ -126,39 +180,39 @@
       return obj;
     }
     //0-fullbody; 1-arms; 2-legs; 3-abs; 4-alternative
-    var listOfMinimalExercises = [
-    createExercise("Normal push-ups","10",1),
-    createExercise("Sumo squat","10",2),
-    createExercise("Standard crunches","10",3),
-    createExercise("Bicep curls","7",1),
-    createExercise("pull ups - hands facing out","2",1),
-    createExercise("pull ups - hands facing in","2",1),
-    createExercise("Standard planck","20 s",3),
-    createExercise("side-planck - per side","7 s/side",3),
-    createExercise("Standard squat","10",2),
-    createExercise("High planck","20 s",3),
-    createExercise("High knees","20 s",2),
-    createExercise("Burpees","10",0),
-    createExercise("Renegade rows","2",0),
-    createExercise("Dumbbell thrusters","5",0),
-    createExercise("reverse planck","15 s",3),
-    createExercise("Standard lunges - per side","10",2),
-    createExercise("Standard bridge","10",2),
-    createExercise("two legged Calf raises","15",2),
-    createExercise("one legged Calf raises - per side","7",2),
-    createExercise("Arms to side with dumbbell","7",1),
-    createExercise("Arms to front with dumbbell","7",1),
-    createExercise("Dumbbel pulls from hip to ribs","7",1),
-    createExercise("Leg raises", "10", 3),
-    createExercise("Kegels","20 s",4), 
-    createExercise("Rainbow Abs", "3", 3),
-    createExercise("Towel toe curls", "20", 4), 
-    createExercise("Marble pickups", "15", 4), 
-    createExercise("Leg extensions", "15", 2),
-    createExercise("Standing hamstring curls", "20", 2), 
-    createExercise("Side-lying leg raises per-side", "10", 2),
-    createExercise("Standing elbow-to-knee per-side", "10", 3)
+    /* version desactualizada
+    var listOfMinimalExercises = [createExercise("Normal push-ups","10",1),createExercise("Sumo squat","10",2),
+    createExercise("Standard crunches","10",3),createExercise("Bicep curls","7",1),createExercise("pull ups - hands facing out","2",1),
+    createExercise("pull ups - hands facing in","2",1),createExercise("Standard planck","20 s",3),
+    createExercise("side-planck - per side","7 s/side",3),createExercise("Standard squat","10",2),
+    createExercise("High planck","20 s",3),createExercise("High knees","20 s",2),createExercise("Burpees","10",0),
+    createExercise("Renegade rows","2",0),createExercise("Dumbbell thrusters","5",0),createExercise("reverse planck","15 s",3),
+    createExercise("Standard lunges - per side","10",2),createExercise("Standard bridge","10",2),createExercise("two legged Calf raises","15",2),
+    createExercise("one legged Calf raises - per side","7",2),createExercise("Arms to side with dumbbell","7",1),
+    createExercise("Arms to front with dumbbell","7",1),createExercise("Dumbbel pulls from hip to ribs","7",1),
+    createExercise("Leg raises", "10", 3),createExercise("Kegels","20 s",4)
     ];
+    */
+
+    var listOfMinimalExercises = [];
+    var listOfActive = [];
+    firebase.database().ref("exercises").on('value', (snapshot) => {
+      const data = snapshot.val();
+      for(let key in data) {
+        listOfMinimalExercises.push(data[key]);
+      }
+      //si el usuario presiona generar rutina muy rápido,
+      //como es una función que está en threading, no funcionará.
+    });
+
+    function containsType(obj, dominantType){
+      for(let i = 0; i < obj.type.length; i+=2){
+        if(obj.type[i] == dominantType){
+          return true;
+        }
+      }
+      return false;
+    }
 
     function fetchRangeValue() {
       var value = document.getElementById("number-range").value;
@@ -185,107 +239,85 @@
       }
     }
 
+    function copyArray(arr){
+      newArr = [];
+      for(let i = 0; i < arr.length; i++){
+        newArr.push(arr[i]);
+      }
+      return newArr;
+    }
+
+    function selectFromArray(arr, start, finish){
+      let newArr = [];
+      for(let i = start; i < finish; i++){
+        newArr.push(arr[i]);
+      }
+      return newArr;
+    }
+
     //inicio ----------------
-    function createRutine(rutineType) {
-      let size = listOfMinimalExercises.length;
-      if (rutineType == 0) {
-        let newArr = [];
-        for (i = 0; i < size; i++) {
-          newArr.push(i);
-        }
-        shuffleArray(newArr, size);
-        shuffleArray(newArr, size);
-        let finalArr = [];
-        for (i = 0; i < document.getElementById("number-range").value && i < size; i++) {
-          finalArr.push(listOfMinimalExercises[newArr[i]]);
-        }
-        return finalArr;
-      } else if (rutineType == 1) {
-        let armExe = [];
-        for (i = 0; i < size; i++) {
-          if (listOfMinimalExercises[i].type == 1) {
-            armExe.push(listOfMinimalExercises[i]);
+
+    function selectExercises(type, clean, nToSelect){
+      array = copyArray(listOfMinimalExercises);
+      finalArr = [];
+      if(clean){
+        for(let i = 0; i < array.length; i++){
+          if(array[i].type[0] == type && array[i].type.length == 1){
+            finalArr.push(array[i]);
           }
         }
-        let indexArr = [];
-        for (i = 0; i < armExe.length; i++) {
-          indexArr.push(i);
-        }
-        shuffleArray(indexArr, armExe.length);
-        shuffleArray(indexArr, armExe.length);
-        let finalArr = [];
-        for (i = 0; i < document.getElementById("number-range").value && i < armExe.length; i++) {
-          finalArr.push(armExe[indexArr[i]]);
-        }
-        return finalArr;
-      } else if (rutineType == 2) {
-        let legExe = [];
-        for (i = 0; i < size; i++) {
-          if (listOfMinimalExercises[i].type == 2) {
-            legExe.push(listOfMinimalExercises[i]);
+      }else{
+        for(let i = 0; i < array.length; i++){
+          if(containsType(array[i], type)){
+            finalArr.push(array[i]);
           }
         }
-        let indexArr = [];
-        for (i = 0; i < legExe.length; i++) {
-          indexArr.push(i);
+      }
+      if(nToSelect > finalArr.length){
+        nToSelect = finalArr.length;
+      }
+      shuffleArray(finalArr, finalArr.length);
+      x = Math.floor(Math.random()*(finalArr.length - nToSelect + 1));
+      finalArr = selectFromArray(finalArr, x, x + nToSelect);
+      return finalArr;
+    }
+
+    function createRutine(rutineType, clean){
+      let nToSelect = Number(document.getElementById("number-range").value);
+      if(rutineType == 0){
+        array = copyArray(listOfMinimalExercises);
+        if(nToSelect > array.length){
+          nToSelect = array.length;
         }
-        shuffleArray(indexArr, legExe.length);
-        shuffleArray(indexArr, legExe.length);
-        let finalArr = [];
-        for (i = 0; i < document.getElementById("number-range").value && i < legExe.length; i++) {
-          finalArr.push(legExe[indexArr[i]]);
-        }
-        return finalArr;
-      } else if (rutineType == 3) {
-        let absExe = [];
-        for (i = 0; i < size; i++) {
-          if (listOfMinimalExercises[i].type == 3) {
-            absExe.push(listOfMinimalExercises[i]);
-          }
-        }
-        let indexArr = [];
-        for (i = 0; i < absExe.length; i++) {
-          indexArr.push(i);
-        }
-        shuffleArray(indexArr, absExe.length);
-        shuffleArray(indexArr, absExe.length);
-        let finalArr = [];
-        for (i = 0; i < document.getElementById("number-range").value && i < absExe.length; i++) {
-          finalArr.push(absExe[indexArr[i]]);
-        }
-        return finalArr;
-      } else if (rutineType == 4) {
-        let altExe = [];
-        for (i = 0; i < size; i++) {
-          if (listOfMinimalExercises[i].type == 4) {
-            altExe.push(listOfMinimalExercises[i]);
-          }
-        }
-        let indexArr = [];
-        for (i = 0; i < altExe.length; i++) {
-          indexArr.push(i);
-        }
-        shuffleArray(indexArr, altExe.length);
-        shuffleArray(indexArr, altExe.length);
-        let finalArr = [];
-        for (i = 0; i < document.getElementById("number-range").value && i < altExe.length; i++) {
-          finalArr.push(altExe[indexArr[i]]);
-        }
-        return finalArr;
+        shuffleArray(array, array.length);
+        x = Math.floor(Math.random()*(array.length - nToSelect + 1));
+        array = selectFromArray(array, x, x + nToSelect);
+        return array;
+      }else{
+        return selectExercises(rutineType, clean, nToSelect);
       }
     }
-    //fin ----------------
-
 
     function showRutine(rutineType) {
-      let list = createRutine(rutineType);
+      let clean = false;
+      if(!document.getElementById("ccc").classList.contains("d")){
+        clean = true;
+      }
+      if(document.getElementById("rcc").classList.contains("d")){
+        listOfActive = createRutine(rutineType, clean);
+      }else{
+        let auxList = createRutine(rutineType, clean);
+        for(let i = 0; i < auxList.length; i++){
+          listOfActive.push(auxList[i]);
+        }
+      }
       let zona = document.getElementById("zona-de-agregacion");
       let str = '<table><tbody>';
-      for (i = 0; i < list.length; i++) {
+      for (i = 0; i < listOfActive.length; i++) {
         str += '<tr><td style = "width: 30%;">';
-        str += list[i].name;
+        str += listOfActive[i].name;
         str += '</td><td style = "width: 30%;">';
-        str += list[i].q;
+        str += listOfActive[i].q;
         str += '</td><td style = "width: 30%;">';
         str = str + '<div class="custom-checkbox b d" id="cc' + i + '" onclick="toggleColor(' + "'cc" + i + "');" + '"></div>';
         str += '</td></tr>';
